@@ -10,7 +10,9 @@ client = OpenAI(
 )
 
 
-def planning_agent(topic: str, model: str = "google:gemini-3.1-flash-lite") -> list[str]:
+def planning_agent(
+    topic: str, model: str = "google:gemini-3.1-flash-lite"
+) -> list[str]:
     """
     This function is a placeholder for the planning agent implementation. It is intended to be used in the context of an agentic AI system, where the agent is responsible for making decisions and planning actions based on its environment and goals.
     """
@@ -125,7 +127,11 @@ def _ensure_contract(steps: list[str]) -> list[str]:
 
     # Enforce second step
     if len(steps) < 2 or steps[1] != required_second:
-        remaining = [s for s in steps[1:] if "arxiv" not in s.lower() or "For each collected item" in s]
+        remaining = [
+            s
+            for s in steps[1:]
+            if "arxiv" not in s.lower() or "For each collected item" in s
+        ]
         steps = [steps[0], required_second] + remaining
 
     # Enforce final step
@@ -133,3 +139,38 @@ def _ensure_contract(steps: list[str]) -> list[str]:
         steps.append(final_required)
 
     return steps[:7]
+
+
+def executer_agent_step(step: str, history: list, prompt: str):
+    """
+        Executes a step of the executor agent.
+    Returns:
+        - step_title (str)
+        - agent_name (str)
+        - output (str)
+    """
+
+    context = f"""
+    User prompt: {prompt}
+    """
+
+    enriched_task = f"""
+    You next task: {step}
+    """
+
+    step_lower = step.lower()
+
+    if "reseach" in step_lower:
+        # Research agent
+        content, _ = reseach_agent(enriched_task, context)
+        print("🔍 Research Agent Output:", content)
+        return step_title, "research_agent", content
+    elif "draft" in step_lower or "write" in step_lower:
+        # Writer agent
+        content, _ = writer_agent(enriched_task, context)
+        return step_title, "writer_agent", content
+    elif "revise" in step_lower or "edit" in step_lower or "feedback" in step_lower:
+        content, _ = editor_agent(prompt=enriched_task)
+        return step_title, "editor_agent", content
+    else:
+        raise ValueError(f"Unknown step type: {step_title}")

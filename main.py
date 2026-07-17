@@ -167,7 +167,7 @@ def run_agent_workflow(task_id: str, prompt: str, initial_plan_steps: list):
     for i , step_title in enumerate(initial_plan_steps):
         update_step_status(i , "running", f"Executing step: {step_title}")
         
-
+        print(f"Executing step {i+1}/{len(initial_plan_steps)}: {step_title}")
         # Now each step we have to send the current step_title to execute
         # and the previous steps execution history
         # and the user prompt to the executor agent to get the result of the current step
